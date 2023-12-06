@@ -2,7 +2,7 @@
 theme = "hugo-theme-relearn"
 baseURL = "http://example.org/"
 languageCode = "en-us"
-title = "My New Hugo Site"
+title = "OneTable Doc"
 
 # For search functionality
 [outputs]
