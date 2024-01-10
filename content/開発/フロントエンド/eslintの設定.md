@@ -4,60 +4,55 @@ weight = 2
 +++
 
 ## 参考
-https://qiita.com/uhooi/items/f22b53b6e39228fc4826  
-https://katanugramer.hatenablog.com/entry/2020/06/20/145437
+nextjs公式サイト  
+https://nextjs.org/docs/pages/building-your-application/configuring/eslint
 
 ## 手順
 ### 1.インストール
-Nextjsプロジェクトのガイドで作成しているため、割愛
-### 2.eslint init
-以下を入力
-```
-✔ How would you like to use ESLint? · problems
-✔ What type of modules does your project use? · esm
-✔ Which framework does your project use? · react
-✔ Does your project use TypeScript? · Yes
-✔ Where does your code run? · browser, node
-✔ What format do you want your config file to be in? · YAML
-The config that you've selected requires the following dependencies:
+Nextjsプロジェクトのガイドで作成しているため割愛  
+core-web-vitalsという
+https://nextjs.org/docs/pages/building-your-application/configuring/eslint#core-web-vitals
 
-@typescript-eslint/eslint-plugin@latest eslint-plugin-react@latest @typescript-eslint/parser@latest
-✔ Would you like to install them now? · Yes
-✔ Which package manager do you want to use? · npm
-```
-
-### 3. prettierと併用するためのプラグインをインストール
+### 2.試しに実行
 ``` 
-npm i -D eslint prettier eslint-plugin-prettier eslint-config-prettier
+$ npm run lint
+
+> one-table@0.1.0 lint
+> next lint
+
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+✔ No ESLint warnings or errors
+$ 
 ```
 
-### 4. airbnbのeslintスタイルをインストール
-```
-npx install-peerdeps --dev eslint-config-airbnb
+### 3. vscodeの拡張機能のEslintをインストール  
+https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
+
+### 4. Pritterの設定
+pritterと競合しないよう設定を追加し、
+``` 
+npm install --save-dev eslint-config-prettier
 ```
 
-### 5. eslintとprettierの設定
-以下ファイルを更新  
-.eslintrc.json
-```
+.eslintrc.jsonにpritterを追加
+``` 
 {
-  "extends": ["airbnb", "prettier"],
-  "plugins": ["prettier"],
-  "rules": {
-    "no-console": "off",
-    "prettier/prettier": ["error"]
-  }
+  "extends": [
+    "next/core-web-vitals",
+    "pritter"
+  ]
 }
 ```
-.prettierrc
+※参考  
+https://github.com/prettier/eslint-config-prettier
+
+### 5. Prettierのインストール
+prettierのインストール
+``` 
+npm install --save-dev prettier
 ```
-{
-  "printWidth": 100,
-  "singleQuote": true
-}
-```
-### 6. vscodeの設定を更新
-ctrl + shift + pでコマンドパレットを開き、  
-preferences: Open Settings (UI) を検索してクリック  
-Editor: Format on Save　をチェックボックスONにする
 
