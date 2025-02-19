@@ -1,5 +1,5 @@
 +++
 archetype = "chapter"
-title = "ドキュメント学習"
+title = "ドキュメント"
 weight = 5
 +++
