@@ -1,5 +1,5 @@
 +++
-title = "NextJsで実装するAPI"
+title = "NextJSで実装するAPI"
 weight = 1
 +++
 
@@ -7,12 +7,14 @@ weight = 1
 NextJsではフロントエンドだけでなく、  
 Fetch APIのリクエスト、レスポンスに対応したリクエストハンドラーを作成することができます。  
 （Httpメソッドに対応したResutful APIを作成可能です）
+※こちらの機能はroute handlerと呼ばれていますが、使うケースを限定するほうが良いようです。  
+  ドキュメント/フロントの「NextJSでよくある間違い」を参照ください
 
-{{% notice style="info" title="Fetch APIとは（chatgptまとめ）" %}}
-JavaScriptでHTTPリクエストを送信するためのモダンで使いやすいAPIです。  
-Webブラウザでサーバーからデータを取得したり、サーバーにデータを送信したりするために使用されます。  
-従来のXMLHttpRequest（XHR）よりも簡潔でPromiseベースで非同期処理が行えるため、  
-より直感的に使うことができます。 
+{{% notice style="info" title="Restful API・Fetch API（chatgptまとめ）" %}}
+RESTful API は、HTTP メソッド（GET、POST、PUT、DELETE）を使ってデータリソースを操作するための
+ Web API の設計スタイルです。
+Fetch API (JavaScript) は、JavaScript で非同期に HTTP リクエストを送信し、
+レスポンスを処理するためのモダンな Web API です。 
 {{% /notice %}}
 
 ## 実装方法（app routerの場合）
