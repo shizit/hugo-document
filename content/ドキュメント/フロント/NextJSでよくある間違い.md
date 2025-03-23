@@ -7,7 +7,7 @@ weight = 1
 vercel公式のYoutubeの内容を翻訳・要約しています  
 https://www.youtube.com/watch?v=RBM03RihZVs
 
-## NG1. 不要なルートハンドラーを呼び出す
+## NG1. 不要なルートハンドラーの実装
 
 ### 概要
 ルートハンドラーとは特定のURLパスに対して  
@@ -21,17 +21,14 @@ NextJSではServer Componentに関数を記述してデータアクセスをし�
 1. 関数を呼び出すだけでよい（fetchで完全なURLをハードコーディングする必要がない）
 2. 不要なネットワークリクエストが発生しない  
 
-また後述のNG2もルートハンドラと関連しています。
-
 ### NGコード例
 ルートハンドラーでデータ取得するAPIを実装し、  
 クライアント側でfetchでAPIを呼び出す
 ``` typescript
+import { NextRequest } from "next/server";
 // app/api/hoge/route.ts
-
-// https://server:port/api/hoge に対するGETリクエストに対して  
-// { hello: "world" }のJSONを返す
-export async function GET(request: Request){
+export async function GET(request: NextRequest){
+    // 何かしらのデータ取得処理を行う
     return Response.json({ hello: "world" });
 }
 ```
@@ -48,23 +45,35 @@ export default async function Page(){
 
 ### 推奨コード例
 サーバーコンポーネント
-``` typescript
-// app/api/hoge/route.ts
-
-// https://server:port/api/hoge に対するGETリクエストに対して  
-// { hello: "world" }のJSONを返す
-export async function GET(request: Request){
-    return Response.json({ hello: "world" });
-}
+``` tsx
+// app/hoge/hoge.ts
+'use server';
+export async function getUser(){
+  return { hello: "world"};
+};
 ```
-``` typescript
+``` tsx
 // app/hoge/page.ts
+'use client'
+import { useEffect, useState } from 'react';
+import { getUser } from '@/app/hoge/hoge';
 
-// ルートハンドラーで記述したAPIをフェッチで呼び出しデータを取得する
-export default async function Page(){
-    let data = await fetch('http://localhost:3000/api/hoge');
-    let json = await data.json();
-    return <h1>{JSON.stringify(json)}</h1>;
+interface UserData {
+  hello: string;
+}
+
+export default function Page() {
+  const [data, setData] = useState<UserData>({hello: ""});
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const userData = await getUser();
+      setData(userData);
+    };
+    fetchData();
+  }, []);
+
+  return <h1>{data.hello}</h1>;
 }
 ```
 
@@ -77,9 +86,10 @@ route handlerのGETはローカル開発環境では毎リクエストごとに�
 Dynamicに設定しておけば毎リクエストごとに動作するようですが、  
 このローカル開発環境とプロダクション環境での動作の違いを理解しておく必要があります。  
 
-## NG3. Client Componentを使うときもRoute Handlerを使う必要はない
+## NG3. Client Component側でデータフェッチングする
 クライアントコンポーネントでも、actionを使えば  
-Route Handler（Fetch）を呼び出す必要はありません。  
+Route Handlerを呼び出したりする必要はありません。  
+（サーバー側でそういった処理を実行できます）
 
 ### NGコード例
 ``` tsx
@@ -106,17 +116,80 @@ import { send } from "./actions";
 export default function Page() {
   return (
     <>
-      <form onSubmit={onSubmit}>
+      <form action={send}>
       <button>Send It</button>
     </>
   );
 }
 ```
-**actions.ts**
 ``` tsx
+// actions.ts
 "use server";
 
 export async function send(){
     console.log("Send it!");
 }
 ```
+
+# NG4 Suspenseの記述場所
+Suspenseは部分的なレンダリングを実施し  
+子要素の読み込みが完了するまでローディング画面などのフォールバックを表示できる機能です。  
+このSuspenseを記述する場所は、データフェッチングしているコンポーネントより上の階層である  
+必要があります。  
+### NGコード例
+``` tsx
+import { Suspense } from "react";
+
+async function BlogPosts(){
+  let res = await fetch('https://api.vercel.app/blog');
+  let posts = await res.json();
+  return (
+    // Suspenseをデータフェッチングしているコンポーネントの中で記述してしまっている
+    <Suspense fallback={<h2>Loading...</h2>}>
+      <ul>
+        {posts.map((post) => (
+          <li key={post.id}>{post.title}</li>
+        ))}
+      </ul>
+    </Suspense>
+  );
+}
+
+export default function Page() {
+  return (
+    <section>
+      <h1>My Blog</h1>
+      <BlogPosts />
+    </section>
+  );
+}
+``` 
+
+### 推奨コード例
+``` tsx
+import { Suspense } from "react";
+
+async function BlogPosts(){
+  let res = await fetch('https://api.vercel.app/blog');
+  let posts = await res.json();
+  return (
+    <ul>
+        {posts.map((post) => (
+          <li key={post.id}>{post.title}</li>
+        ))}
+      </ul>
+  );
+}
+
+export default function Page() {
+  return (
+    <section>
+      <h1>My Blog</h1>
+    // Suspenseをデータフェッチングしているコンポーネントの上の階層に記述する
+    <Suspense fallback={<h2>Loading...</h2>}>
+      <BlogPosts />
+    </Suspense>
+    </section>
+  );
+}
+``` 
