@@ -10,10 +10,9 @@ https://www.youtube.com/watch?v=RBM03RihZVs
 ## NG1. 不要なルートハンドラーの実装
 
 ### 概要
-ルートハンドラーとは特定のURLパスに対して  
-HTTPリクエスト(GET,POST,PUT, DELETEなど)を処理するためのNextJSの機能で、  
-Restful APIとして機能します。  
-  
+ルートハンドラーとは   
+HTTPリクエスト(GET,POST,PUT, DELETEなど)を処理するためのNextJSの機能です。  
+
 自分はフロントと独立したAPI構成（Expressなど）のイメージで  
 データアクセスなどをこの機能にまとめるイメージをもってしまったのですが、  
 NextJSではServer Componentに関数を記述してデータアクセスをしたほうが  
@@ -24,7 +23,7 @@ NextJSではServer Componentに関数を記述してデータアクセスをし�
 ### NGコード例
 ルートハンドラーでデータ取得するAPIを実装し、  
 クライアント側でfetchでAPIを呼び出す
-``` typescript
+``` tsx
 import { NextRequest } from "next/server";
 // app/api/hoge/route.ts
 export async function GET(request: NextRequest){
@@ -32,7 +31,7 @@ export async function GET(request: NextRequest){
     return Response.json({ hello: "world" });
 }
 ```
-``` typescript
+``` tsx
 // app/hoge/page.ts
 
 // ルートハンドラーで記述したAPIをフェッチで呼び出しデータを取得する
@@ -52,6 +51,7 @@ export async function getUser(){
   return { hello: "world"};
 };
 ```
+クライアントコンポーネント
 ``` tsx
 // app/hoge/page.ts
 'use client'
@@ -86,10 +86,10 @@ route handlerのGETはローカル開発環境では毎リクエストごとに�
 Dynamicに設定しておけば毎リクエストごとに動作するようですが、  
 このローカル開発環境とプロダクション環境での動作の違いを理解しておく必要があります。  
 
-## NG3. Client Component側でデータフェッチングする
+## NG3. Client Component側でデータ取得などの処理を実行する
 クライアントコンポーネントでも、actionを使えば  
 Route Handlerを呼び出したりする必要はありません。  
-（サーバー側でそういった処理を実行できます）
+（サーバーコンポーネント側でそういった処理を実行できます）
 
 ### NGコード例
 ``` tsx
@@ -132,8 +132,8 @@ export async function send(){
 ```
 
 # NG4 Suspenseの記述場所
-Suspenseは部分的なレンダリングを実施し  
-子要素の読み込みが完了するまでローディング画面などのフォールバックを表示できる機能です。  
+Suspenseは子要素の読み込みが完了するまで  
+ローディング画面などのフォールバックを表示できる機能です。  
 このSuspenseを記述する場所は、データフェッチングしているコンポーネントより上の階層である  
 必要があります。  
 ### NGコード例
@@ -144,7 +144,7 @@ async function BlogPosts(){
   let res = await fetch('https://api.vercel.app/blog');
   let posts = await res.json();
   return (
-    // Suspenseをデータフェッチングしているコンポーネントの中で記述してしまっている
+    // Suspenseをデータフェッチングより下の階層で記述してしまっている
     <Suspense fallback={<h2>Loading...</h2>}>
       <ul>
         {posts.map((post) => (
@@ -185,7 +185,7 @@ export default function Page() {
   return (
     <section>
       <h1>My Blog</h1>
-    // Suspenseをデータフェッチングしているコンポーネントの上の階層に記述する
+    // Suspenseをデータフェッチングより上の階層に記述する
     <Suspense fallback={<h2>Loading...</h2>}>
       <BlogPosts />
     </Suspense>
