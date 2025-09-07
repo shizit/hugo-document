@@ -1,6 +1,6 @@
 +++
 title = "NextJSで実装するAPI"
-weight = 1
+weight = 2
 +++
 
 ## 概要

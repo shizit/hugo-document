@@ -1,6 +1,6 @@
 +++
 title = "NextJSでよくある間違い"
-weight = 1
+weight = 4
 +++
 
 ## 概要
